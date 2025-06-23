@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 const userSchema=new Schema(
     {
-        username:{
+        userName:{
             type:String,
             required:true,
             unique:true,
@@ -18,14 +18,14 @@ const userSchema=new Schema(
             lowercase:true,
             trim:true,
         },
-        fullname:{
+        fullName:{
             type:String,
             required:true,
             trim:true,
             index:true,
 
         },
-        avtar:{
+        avatar:{
             type: String, //cloudinary url
             required:true,
         },
@@ -52,9 +52,9 @@ const userSchema=new Schema(
 )
 
 userSchema.pre("save",async function (){
-    if(!this.isModified("password")) return next();
+    if(!this.isModified("password")) ;
     this.password= await bcrypt.hash(this.password,10)
-    next()
+   
 })
 
 userSchema.methods.isPasswordCorrect=async function(password){
@@ -64,9 +64,9 @@ userSchema.methods.isPasswordCorrect=async function(password){
 userSchema.methods.generateAccessToken=function(){
     return jwt.sign({
         _id:this._id,
-        username:this.username,
+        userName:this.userName,
         email:this.email,
-        fullname:this.fullname,
+        fullName:this.fullName,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
