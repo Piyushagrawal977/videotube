@@ -50,7 +50,7 @@ const registerUser=asyncHandler(async (req,res)=>{
     if(
         [fullName,email,password,userName].some((field)=>field?.trim() === "")
     ){
-        throw new ApiError(422,"All fields must be filed")
+        throw new ApiError(422,"All fields must be filled")
     }
 
     if(!validator.isEmail(email))
@@ -69,9 +69,12 @@ const registerUser=asyncHandler(async (req,res)=>{
         throw new ApiError(409,"user With email or username already exists")
     }
 
+    // console.log("files",req.files?.avatar[0].path)
     const avatarLocalPath=req.files?.avatar[0]?.path;
-    const  coverImageLocalPath=req.files?.coverImage[0]?.path;
-
+    const  coverImageLocalPath=req.files?.coverImage?.[0]?.path||"";
+    
+    // const  coverImageLocalPath="";
+    // console.log("avatarLocalPath",avatarLocalPath);
     if(!avatarLocalPath)
     {
         throw new ApiError(400,"Avatar file is required")
@@ -85,12 +88,12 @@ const registerUser=asyncHandler(async (req,res)=>{
         throw new ApiError(400,"Avatar file is required")
     }
 }
-
+    
     const user = await User.create({
-        userName:userName.tolowerCase(),
+        userName:userName.toLowerCase(),
         fullName,
         avatar:avatar.url,
-        coverImage:coverImage.url ?? "",
+        coverImage:coverImage?.url || "",
         email,
         password
 
