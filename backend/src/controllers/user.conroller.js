@@ -7,26 +7,29 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken"
 
 const options={
-    httpOnly:true,
-    secure:true
-}
+        httpOnly:true,
+        secure:true
+    }
 
-const generateAccessAndRefreshToken= async (userId)=>{
-    const user=await User.findById(userId);
-    const accessToken=await user.generateAccessToken();
-    const refreshToken = await user.generateRefreshToken();
+const generateAccessAndRefreshToken=async(userId)=>{
+   try {
+    const user= await User.findById(userId);
+     const accessToken= await user.generateAccessToken()
+     const refreshToken =await  user.generateRefreshToken()
 
-    user.refreshToken=refreshToken;
-    user.save({validateBeforeSave:false})
-
-    return {accessToken,refreshToken}
+  
+ 
+     user.refreshToken=refreshToken      // saving refresh token on backend
+     await user.save({validateBeforeSave:false})   
+ 
+     return {accessToken,refreshToken}
+   } catch (error) {
+        throw new ApiError(500,error||"Error Generating refresh and access Token")
+   }
 }
 
 const registerUser=asyncHandler(async (req,res)=>{
 
-    // res.status(200).json({
-    //     message:"ok"
-    // }) 
 
     // get data from the frontend
     // validate the data 
@@ -66,15 +69,27 @@ const registerUser=asyncHandler(async (req,res)=>{
 
    
     if(existedUser){
-        throw new ApiError(409,"user With email or username already exists")
+        throw new ApiError(409,"User with the given email or username already exists")
+       
     }
 
-    // console.log("files",req.files?.avatar[0].path)
-    const avatarLocalPath=req.files?.avatar[0]?.path;
-    const  coverImageLocalPath=req.files?.coverImage?.[0]?.path||"";
     
-    // const  coverImageLocalPath="";
-    // console.log("avatarLocalPath",avatarLocalPath);
+    // const avatarLocalPath=req.files?.avatar[0]?.path;
+    // const  coverImageLocalPath=req.files?.coverImage[0]?.path;
+
+    
+    let avatarLocalPath,coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.avatar) && req.files.avatar.length>0)
+    {
+        avatarLocalPath=req.files.avatar[0].path
+    }
+
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0)
+    {
+        coverImageLocalPath=req.files.coverImage[0].path
+    }
+
+    
     if(!avatarLocalPath)
     {
         throw new ApiError(400,"Avatar file is required")
@@ -110,7 +125,7 @@ const registerUser=asyncHandler(async (req,res)=>{
     }
 
     return res.status(201).json(
-        new ApiResponse(200,createdUser,"User Registered Successfully")
+        new ApiResponse(createdUser,200,"User Registered Successfully")
     )
     
 
