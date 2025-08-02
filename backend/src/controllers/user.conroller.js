@@ -125,7 +125,7 @@ const registerUser=asyncHandler(async (req,res)=>{
     }
 
     return res.status(201).json(
-        new ApiResponse(createdUser,200,"User Registered Successfully")
+        new ApiResponse(200,createdUser,"User Registered Successfully")
     )
     
 
@@ -159,10 +159,10 @@ const logInUser=asyncHandler(async(req,res)=>{
     throw new ApiError(401,"Invalid Credentials")
    }
 
-   if(!password)
-   {
-    throw new ApiError(404,"Password is not found")
-   }
+//    if(!password)
+//    {
+//     throw new ApiError(404,"Password is not found")
+//    }
    
    const passwordCheck=await existedUser.isPasswordCorrect(password)
 
@@ -224,7 +224,7 @@ const logOutUser=asyncHandler(async(req,res)=>{
     .json(
         new ApiResponse(
             200,
-            {logoutUser},
+            {},
             "User logout successFully"
         )
     

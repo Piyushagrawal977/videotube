@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
+import { ApiError } from "../utils/ApiError.js";
 
 const userSchema=new Schema(
     {
@@ -53,7 +54,8 @@ const userSchema=new Schema(
 )
 
 userSchema.pre("save",async function (){
-    if(!this.isModified("password")) ;
+    if(!this.isModified("password")) return
+    if(!this.password) throw new ApiError(500,"password missing");
     this.password= await bcrypt.hash(this.password,10)
    
 })
