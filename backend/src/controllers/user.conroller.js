@@ -281,4 +281,53 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
     
     
 })
-export {registerUser,logInUser,logOutUser,refreshAccessToken};
+
+const updatePassword = asyncHandler(async(req,res)=>{
+    // take old, new and confirm password from the user 
+    // get the user from the middleware
+    // update only new password on db. 
+
+    const {oldPassword,newPassword,confirmPassword}=req.body;
+
+    if(!oldPassword || !newPassword  )
+        throw new ApiError(402,"All field must be filed");
+
+    if(newPassword!=confirmPassword)
+        throw new ApiError(402,"New and confirm passowrd  don't match")
+
+    const existedUser=await User.findById(
+        req.user._id
+    )
+
+    const passwordCheck= await existedUser.isPasswordCorrect(oldPassword)
+
+    if(!passwordCheck)
+    {
+        throw new ApiError(401,"Invalid Password")
+    }
+
+    existedUser.password=newPassword
+    await existedUser.save({validateBeforeSave:false})
+
+    return res
+    .status(201)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                
+            },
+            "Password Changed Successfully"
+        )
+    )
+
+
+
+})
+export {
+    registerUser,
+    logInUser,
+    logOutUser,
+    refreshAccessToken,
+    updatePassword
+};
