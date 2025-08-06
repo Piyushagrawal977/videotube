@@ -433,7 +433,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
     // project the fields 
     // return the response
 
-    const {username}=req.query    // use req.query then req.params
+    const {username}=req.params   
     // console.log(username)
 
     if(!username?.trim())
